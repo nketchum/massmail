@@ -278,13 +278,14 @@ foreach($records as $record) {
 }
 unset($records);
 
+// Send the emails
 fwrite($logfile, 'Preparing to send ' . count($requests) . " emails...\n");
 print 'Preparing to send ' . count($requests) . " emails...\n";
 
 $ses = massmail_ses_client();
 $rate = $ses->getSendQuota()->get('MaxSendRate');
 
-if ($mode === 'test') {
+if ($mode === 'test' || $mode === '') {
 
   if (count($requests)) {
 
@@ -299,7 +300,7 @@ if ($mode === 'test') {
     fwrite($logfile, 'Sent email.' . "\n");
     print 'Sent email.' . "\n";
 
-    // Test last email - DISABLED BECAUSE IT TOOK TOO LONG. ADDED A BREAK TO THE LOOP ABOVE
+    // Test last email
     fwrite($logfile, 'Sending test of last email in queue...' . "\n");
     print 'Sending test of last email in queue...' . "\n";
 

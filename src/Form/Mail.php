@@ -9,6 +9,7 @@ use Drupal\file\Entity\File;
 use PHPExcel_IOFactory as PHPExcel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Provides the send mail form.
@@ -39,6 +40,18 @@ class Mail extends ConfigFormBase {
 
     $site = $this->config('system.site');
     $settings = $this->config('massmail.settings');
+
+    // Redirect to module config if not set.
+    if (
+      !$settings->get('aws_access') ||
+      !$settings->get('aws_secret') ||
+      !$settings->get('aws_region') ||
+      !$settings->get('data_dir'))
+    {
+      drupal_set_message($this->t('You must first configure the general MassMail module settings to send email.'), 'warning');
+      return new RedirectResponse('/admin/config/system/massmail');
+    }
+
     $config = $this->config('massmail.mail');
 
     $form['to'] = array(
@@ -60,8 +73,8 @@ class Mail extends ConfigFormBase {
     );
 
     $form['addresses'] = array(
-      '#title' => t('Additional addresses'),
-      '#markup' => '<p><em>' . t('Return email notifications. (Empty fields in this section will use the "from address" by default.)') . '</em></p>',
+      '#title' => t('Notification addresses'),
+      '#markup' => '<p><em>' . t('For return email notifications. (Empty fields in this section will use the "from address" by default.)') . '</em></p>',
       '#type' => 'fieldset',
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
